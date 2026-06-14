@@ -1,0 +1,6 @@
+{
+  "summary": "API pod restarts during report generation",
+  "expected_category": "INFRASTRUCTURE",
+  "expected_root_cause": "The pod is being killed by memory pressure",
+  "input": "Jun 14 13:03:44 kubelet ERROR pod api-7d8 OOMKilled out of memory cpu throttling observed\nJun 14 13:03:45 kubelet WARN restart backoff"
+}

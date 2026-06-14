@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DebugOS Investigation Engine</title>
+  <style>
+    :root { color-scheme: light; font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #17202a; background: #f6f7f9; }
+    body { margin: 0; }
+    main { max-width: 1180px; margin: 0 auto; padding: 32px 18px; display: grid; gap: 18px; }
+    h1 { font-size: 32px; margin: 0; }
+    p { color: #54616f; margin: 0; line-height: 1.5; }
+    form { display: grid; gap: 12px; }
+    label { font-weight: 650; font-size: 14px; }
+    textarea, input { width: 100%; box-sizing: border-box; border: 1px solid #cfd6dd; border-radius: 6px; padding: 12px; font: inherit; background: #fff; }
+    textarea { min-height: 390px; resize: vertical; font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size: 13px; }
+    button { width: fit-content; border: 0; border-radius: 6px; padding: 11px 16px; background: #16695c; color: white; font-weight: 750; cursor: pointer; }
+    .panel { background: white; border: 1px solid #dfe5ea; border-radius: 8px; padding: 18px; }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>DebugOS Investigation Engine</h1>
+      <p>Paste logs or a stack trace. The engine redacts secrets, normalizes evidence, verifies citations, scores hypotheses, and returns grounded next steps.</p>
+    </header>
+    <section class="panel">
+      <form method="post" action="/demo">
+        <div>
+          <label for="summary">Incident summary</label>
+          <input id="summary" name="summary" placeholder="Checkout requests fail after deploy">
+        </div>
+        <div>
+          <label for="raw_text">Logs and stack traces</label>
+          <textarea id="raw_text" name="raw_text" required placeholder="2026-06-14T08:15:01Z ERROR payment timeout calling Stripe..."></textarea>
+        </div>
+        <button type="submit">Run investigation</button>
+      </form>
+    </section>
+  </main>
+</body>
+</html>

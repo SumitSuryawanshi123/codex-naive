@@ -1,0 +1,6 @@
+{
+  "summary": "Search service cannot reach Redis",
+  "expected_category": "NETWORK",
+  "expected_root_cause": "Redis hostname cannot resolve from the service",
+  "input": "2026-06-14T12:00:00Z ERROR redis DNS lookup failed for cache.internal network unreachable\n2026-06-14T12:00:01Z ERROR connection refused cache.internal:6379"
+}

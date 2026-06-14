@@ -1,0 +1,6 @@
+{
+  "summary": "Profile page crashes",
+  "expected_category": "CODE",
+  "expected_root_cause": "Profile renderer dereferences a missing avatar object",
+  "input": "2026-06-14T14:00:00Z ERROR NullPointerException avatar.url\n    at com.debugos.ProfileRenderer.render(ProfileRenderer.java:88)\n    at com.debugos.ProfileController.show(ProfileController.java:31)"
+}
