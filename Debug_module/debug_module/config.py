@@ -8,7 +8,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 class Settings(BaseSettings):
     database_url: str = "sqlite:///./debugos.db"
     llm_cache_path: Path = Path(".cache/llm_cache.sqlite3")
-    openai_api_key: str | None = Field(default=None, validation_alias=AliasChoices("GPT_API_KEY", "OPENAI_API_KEY"))
+    openai_api_key: str | None = Field(default=None, validation_alias=AliasChoices("OPENAI_API_KEY", "OPENAI_API_KEY"))
     openai_model: str = "gpt-4.1-mini"
     enable_llm_reasoning: bool = True
     default_budget: int = 4

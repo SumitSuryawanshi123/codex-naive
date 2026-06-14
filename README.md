@@ -28,7 +28,7 @@ DebugOS includes:
 - SQLite + SQLAlchemy models for investigations, artifacts, evidence, hypotheses, evidence links, requests, feedback, resolved incidents, and learned patterns.
 - Deterministic ingestion for logs, stack traces, configs, HAR, and OTel-style traces.
 - Secret/PII redaction, fingerprinting, deduplication, source snippets, git blame helper, failure pattern priors, timeline reporting, learning from feedback, and remediation suggestions.
-- Cached OpenAI/LLM client wrapper using `GPT_API_KEY` or `OPENAI_API_KEY`.
+- Cached OpenAI/LLM client wrapper using `OPENAI_API_KEY` or `OPENAI_API_KEY`.
 
 Useful commands:
 
