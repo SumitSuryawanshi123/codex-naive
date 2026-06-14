@@ -5,6 +5,7 @@ description = "FastAPI request and function-flow tracker with a visual debugging
 requires-python = ">=3.10"
 dependencies = [
     "fastapi>=0.110",
+    "openai>=1.35",
     "uvicorn[standard]>=0.27",
 ]
 
