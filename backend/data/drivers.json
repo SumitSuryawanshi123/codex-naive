@@ -1,0 +1,652 @@
+[
+  {
+    "id": "drv_0001",
+    "name": "Driver 01",
+    "phone": "+91-90000-00001",
+    "vehicle": "scooter",
+    "rating": 4.3,
+    "status": "available",
+    "location": {
+      "lat": 12.905181,
+      "lng": 77.625629
+    },
+    "completed_deliveries": 293
+  },
+  {
+    "id": "drv_0002",
+    "name": "Driver 02",
+    "phone": "+91-90000-00002",
+    "vehicle": "ev-bike",
+    "rating": 4.1,
+    "status": "available",
+    "location": {
+      "lat": 12.911072,
+      "lng": 77.65019
+    },
+    "completed_deliveries": 504
+  },
+  {
+    "id": "drv_0003",
+    "name": "Driver 03",
+    "phone": "+91-90000-00003",
+    "vehicle": "bike",
+    "rating": 4.9,
+    "status": "available",
+    "location": {
+      "lat": 12.94092,
+      "lng": 77.665369
+    },
+    "completed_deliveries": 1580
+  },
+  {
+    "id": "drv_0004",
+    "name": "Driver 04",
+    "phone": "+91-90000-00004",
+    "vehicle": "scooter",
+    "rating": 4.7,
+    "status": "available",
+    "location": {
+      "lat": 12.970408,
+      "lng": 77.654263
+    },
+    "completed_deliveries": 1428
+  },
+  {
+    "id": "drv_0005",
+    "name": "Driver 05",
+    "phone": "+91-90000-00005",
+    "vehicle": "ev-bike",
+    "rating": 4.4,
+    "status": "available",
+    "location": {
+      "lat": 12.987046,
+      "lng": 77.62039
+    },
+    "completed_deliveries": 1839
+  },
+  {
+    "id": "drv_0006",
+    "name": "Driver 06",
+    "phone": "+91-90000-00006",
+    "vehicle": "bike",
+    "rating": 4.8,
+    "status": "available",
+    "location": {
+      "lat": 13.003606,
+      "lng": 77.587764
+    },
+    "completed_deliveries": 763
+  },
+  {
+    "id": "drv_0007",
+    "name": "Driver 07",
+    "phone": "+91-90000-00007",
+    "vehicle": "scooter",
+    "rating": 4.7,
+    "status": "available",
+    "location": {
+      "lat": 12.945223,
+      "lng": 77.600781
+    },
+    "completed_deliveries": 2563
+  },
+  {
+    "id": "drv_0008",
+    "name": "Driver 08",
+    "phone": "+91-90000-00008",
+    "vehicle": "ev-bike",
+    "rating": 4.8,
+    "status": "busy",
+    "location": {
+      "lat": 12.934978,
+      "lng": 77.59118
+    },
+    "completed_deliveries": 1599
+  },
+  {
+    "id": "drv_0009",
+    "name": "Driver 09",
+    "phone": "+91-90000-00009",
+    "vehicle": "bike",
+    "rating": 4.4,
+    "status": "available",
+    "location": {
+      "lat": 12.917315,
+      "lng": 77.582324
+    },
+    "completed_deliveries": 57
+  },
+  {
+    "id": "drv_0010",
+    "name": "Driver 10",
+    "phone": "+91-90000-00010",
+    "vehicle": "scooter",
+    "rating": 5.0,
+    "status": "available",
+    "location": {
+      "lat": 12.906635,
+      "lng": 77.602556
+    },
+    "completed_deliveries": 2374
+  },
+  {
+    "id": "drv_0011",
+    "name": "Driver 11",
+    "phone": "+91-90000-00011",
+    "vehicle": "ev-bike",
+    "rating": 4.1,
+    "status": "available",
+    "location": {
+      "lat": 12.899594,
+      "lng": 77.63653
+    },
+    "completed_deliveries": 2554
+  },
+  {
+    "id": "drv_0012",
+    "name": "Driver 12",
+    "phone": "+91-90000-00012",
+    "vehicle": "bike",
+    "rating": 4.3,
+    "status": "available",
+    "location": {
+      "lat": 12.916036,
+      "lng": 77.660616
+    },
+    "completed_deliveries": 626
+  },
+  {
+    "id": "drv_0013",
+    "name": "Driver 13",
+    "phone": "+91-90000-00013",
+    "vehicle": "scooter",
+    "rating": 4.4,
+    "status": "available",
+    "location": {
+      "lat": 12.940025,
+      "lng": 77.660248
+    },
+    "completed_deliveries": 1358
+  },
+  {
+    "id": "drv_0014",
+    "name": "Driver 14",
+    "phone": "+91-90000-00014",
+    "vehicle": "ev-bike",
+    "rating": 4.3,
+    "status": "available",
+    "location": {
+      "lat": 12.987022,
+      "lng": 77.642113
+    },
+    "completed_deliveries": 2794
+  },
+  {
+    "id": "drv_0015",
+    "name": "Driver 15",
+    "phone": "+91-90000-00015",
+    "vehicle": "bike",
+    "rating": 4.7,
+    "status": "available",
+    "location": {
+      "lat": 13.007101,
+      "lng": 77.612502
+    },
+    "completed_deliveries": 1136
+  },
+  {
+    "id": "drv_0016",
+    "name": "Driver 16",
+    "phone": "+91-90000-00016",
+    "vehicle": "scooter",
+    "rating": 4.3,
+    "status": "busy",
+    "location": {
+      "lat": 12.947473,
+      "lng": 77.604442
+    },
+    "completed_deliveries": 55
+  },
+  {
+    "id": "drv_0017",
+    "name": "Driver 17",
+    "phone": "+91-90000-00017",
+    "vehicle": "ev-bike",
+    "rating": 4.1,
+    "status": "available",
+    "location": {
+      "lat": 12.941599,
+      "lng": 77.585945
+    },
+    "completed_deliveries": 731
+  },
+  {
+    "id": "drv_0018",
+    "name": "Driver 18",
+    "phone": "+91-90000-00018",
+    "vehicle": "bike",
+    "rating": 4.9,
+    "status": "available",
+    "location": {
+      "lat": 12.925215,
+      "lng": 77.579662
+    },
+    "completed_deliveries": 2286
+  },
+  {
+    "id": "drv_0019",
+    "name": "Driver 19",
+    "phone": "+91-90000-00019",
+    "vehicle": "scooter",
+    "rating": 4.4,
+    "status": "available",
+    "location": {
+      "lat": 12.910397,
+      "lng": 77.594517
+    },
+    "completed_deliveries": 2417
+  },
+  {
+    "id": "drv_0020",
+    "name": "Driver 20",
+    "phone": "+91-90000-00020",
+    "vehicle": "ev-bike",
+    "rating": 4.7,
+    "status": "available",
+    "location": {
+      "lat": 12.896064,
+      "lng": 77.607018
+    },
+    "completed_deliveries": 351
+  },
+  {
+    "id": "drv_0021",
+    "name": "Driver 21",
+    "phone": "+91-90000-00021",
+    "vehicle": "bike",
+    "rating": 4.8,
+    "status": "available",
+    "location": {
+      "lat": 12.891056,
+      "lng": 77.633519
+    },
+    "completed_deliveries": 1119
+  },
+  {
+    "id": "drv_0022",
+    "name": "Driver 22",
+    "phone": "+91-90000-00022",
+    "vehicle": "scooter",
+    "rating": 5.0,
+    "status": "available",
+    "location": {
+      "lat": 12.916758,
+      "lng": 77.657498
+    },
+    "completed_deliveries": 1587
+  },
+  {
+    "id": "drv_0023",
+    "name": "Driver 23",
+    "phone": "+91-90000-00023",
+    "vehicle": "ev-bike",
+    "rating": 4.2,
+    "status": "available",
+    "location": {
+      "lat": 12.953579,
+      "lng": 77.671438
+    },
+    "completed_deliveries": 431
+  },
+  {
+    "id": "drv_0024",
+    "name": "Driver 24",
+    "phone": "+91-90000-00024",
+    "vehicle": "bike",
+    "rating": 4.4,
+    "status": "offline",
+    "location": {
+      "lat": 12.99669,
+      "lng": 77.639616
+    },
+    "completed_deliveries": 2727
+  },
+  {
+    "id": "drv_0025",
+    "name": "Driver 25",
+    "phone": "+91-90000-00025",
+    "vehicle": "scooter",
+    "rating": 4.2,
+    "status": "available",
+    "location": {
+      "lat": 12.958989,
+      "lng": 77.60154
+    },
+    "completed_deliveries": 464
+  },
+  {
+    "id": "drv_0026",
+    "name": "Driver 26",
+    "phone": "+91-90000-00026",
+    "vehicle": "ev-bike",
+    "rating": 4.4,
+    "status": "available",
+    "location": {
+      "lat": 12.959035,
+      "lng": 77.591068
+    },
+    "completed_deliveries": 2319
+  },
+  {
+    "id": "drv_0027",
+    "name": "Driver 27",
+    "phone": "+91-90000-00027",
+    "vehicle": "bike",
+    "rating": 4.7,
+    "status": "available",
+    "location": {
+      "lat": 12.941819,
+      "lng": 77.576409
+    },
+    "completed_deliveries": 1203
+  },
+  {
+    "id": "drv_0028",
+    "name": "Driver 28",
+    "phone": "+91-90000-00028",
+    "vehicle": "scooter",
+    "rating": 4.4,
+    "status": "available",
+    "location": {
+      "lat": 12.909867,
+      "lng": 77.577505
+    },
+    "completed_deliveries": 2301
+  },
+  {
+    "id": "drv_0029",
+    "name": "Driver 29",
+    "phone": "+91-90000-00029",
+    "vehicle": "ev-bike",
+    "rating": 4.9,
+    "status": "available",
+    "location": {
+      "lat": 12.890386,
+      "lng": 77.592364
+    },
+    "completed_deliveries": 1801
+  },
+  {
+    "id": "drv_0030",
+    "name": "Driver 30",
+    "phone": "+91-90000-00030",
+    "vehicle": "bike",
+    "rating": 4.2,
+    "status": "available",
+    "location": {
+      "lat": 12.893977,
+      "lng": 77.625006
+    },
+    "completed_deliveries": 2017
+  },
+  {
+    "id": "drv_0031",
+    "name": "Driver 31",
+    "phone": "+91-90000-00031",
+    "vehicle": "scooter",
+    "rating": 4.3,
+    "status": "available",
+    "location": {
+      "lat": 12.894885,
+      "lng": 77.647838
+    },
+    "completed_deliveries": 1245
+  },
+  {
+    "id": "drv_0032",
+    "name": "Driver 32",
+    "phone": "+91-90000-00032",
+    "vehicle": "ev-bike",
+    "rating": 5.0,
+    "status": "offline",
+    "location": {
+      "lat": 12.940713,
+      "lng": 77.666933
+    },
+    "completed_deliveries": 1678
+  },
+  {
+    "id": "drv_0033",
+    "name": "Driver 33",
+    "phone": "+91-90000-00033",
+    "vehicle": "bike",
+    "rating": 4.5,
+    "status": "available",
+    "location": {
+      "lat": 12.981447,
+      "lng": 77.658639
+    },
+    "completed_deliveries": 2679
+  },
+  {
+    "id": "drv_0034",
+    "name": "Driver 34",
+    "phone": "+91-90000-00034",
+    "vehicle": "scooter",
+    "rating": 4.6,
+    "status": "available",
+    "location": {
+      "lat": 12.947319,
+      "lng": 77.620921
+    },
+    "completed_deliveries": 1563
+  },
+  {
+    "id": "drv_0035",
+    "name": "Driver 35",
+    "phone": "+91-90000-00035",
+    "vehicle": "ev-bike",
+    "rating": 4.3,
+    "status": "available",
+    "location": {
+      "lat": 12.949977,
+      "lng": 77.600072
+    },
+    "completed_deliveries": 1128
+  },
+  {
+    "id": "drv_0036",
+    "name": "Driver 36",
+    "phone": "+91-90000-00036",
+    "vehicle": "bike",
+    "rating": 4.3,
+    "status": "available",
+    "location": {
+      "lat": 12.946671,
+      "lng": 77.577225
+    },
+    "completed_deliveries": 2783
+  },
+  {
+    "id": "drv_0037",
+    "name": "Driver 37",
+    "phone": "+91-90000-00037",
+    "vehicle": "scooter",
+    "rating": 4.2,
+    "status": "available",
+    "location": {
+      "lat": 12.933668,
+      "lng": 77.579156
+    },
+    "completed_deliveries": 1745
+  },
+  {
+    "id": "drv_0038",
+    "name": "Driver 38",
+    "phone": "+91-90000-00038",
+    "vehicle": "ev-bike",
+    "rating": 5.0,
+    "status": "available",
+    "location": {
+      "lat": 12.907441,
+      "lng": 77.580471
+    },
+    "completed_deliveries": 1635
+  },
+  {
+    "id": "drv_0039",
+    "name": "Driver 39",
+    "phone": "+91-90000-00039",
+    "vehicle": "bike",
+    "rating": 4.8,
+    "status": "available",
+    "location": {
+      "lat": 12.886302,
+      "lng": 77.602976
+    },
+    "completed_deliveries": 1994
+  },
+  {
+    "id": "drv_0040",
+    "name": "Driver 40",
+    "phone": "+91-90000-00040",
+    "vehicle": "scooter",
+    "rating": 4.6,
+    "status": "busy",
+    "location": {
+      "lat": 12.887004,
+      "lng": 77.628733
+    },
+    "completed_deliveries": 192
+  },
+  {
+    "id": "drv_0041",
+    "name": "Driver 41",
+    "phone": "+91-90000-00041",
+    "vehicle": "ev-bike",
+    "rating": 4.6,
+    "status": "available",
+    "location": {
+      "lat": 12.916415,
+      "lng": 77.669354
+    },
+    "completed_deliveries": 2590
+  },
+  {
+    "id": "drv_0042",
+    "name": "Driver 42",
+    "phone": "+91-90000-00042",
+    "vehicle": "bike",
+    "rating": 4.2,
+    "status": "available",
+    "location": {
+      "lat": 12.956615,
+      "lng": 77.673589
+    },
+    "completed_deliveries": 734
+  },
+  {
+    "id": "drv_0043",
+    "name": "Driver 43",
+    "phone": "+91-90000-00043",
+    "vehicle": "scooter",
+    "rating": 5.0,
+    "status": "available",
+    "location": {
+      "lat": 12.953698,
+      "lng": 77.615621
+    },
+    "completed_deliveries": 1784
+  },
+  {
+    "id": "drv_0044",
+    "name": "Driver 44",
+    "phone": "+91-90000-00044",
+    "vehicle": "ev-bike",
+    "rating": 4.2,
+    "status": "available",
+    "location": {
+      "lat": 12.961899,
+      "lng": 77.60644
+    },
+    "completed_deliveries": 2619
+  },
+  {
+    "id": "drv_0045",
+    "name": "Driver 45",
+    "phone": "+91-90000-00045",
+    "vehicle": "bike",
+    "rating": 4.2,
+    "status": "available",
+    "location": {
+      "lat": 12.961288,
+      "lng": 77.590187
+    },
+    "completed_deliveries": 324
+  },
+  {
+    "id": "drv_0046",
+    "name": "Driver 46",
+    "phone": "+91-90000-00046",
+    "vehicle": "scooter",
+    "rating": 4.2,
+    "status": "available",
+    "location": {
+      "lat": 12.947268,
+      "lng": 77.576674
+    },
+    "completed_deliveries": 1181
+  },
+  {
+    "id": "drv_0047",
+    "name": "Driver 47",
+    "phone": "+91-90000-00047",
+    "vehicle": "ev-bike",
+    "rating": 4.6,
+    "status": "available",
+    "location": {
+      "lat": 12.928113,
+      "lng": 77.562447
+    },
+    "completed_deliveries": 2602
+  },
+  {
+    "id": "drv_0048",
+    "name": "Driver 48",
+    "phone": "+91-90000-00048",
+    "vehicle": "bike",
+    "rating": 4.6,
+    "status": "offline",
+    "location": {
+      "lat": 12.888969,
+      "lng": 77.577608
+    },
+    "completed_deliveries": 2370
+  },
+  {
+    "id": "drv_0049",
+    "name": "Driver 49",
+    "phone": "+91-90000-00049",
+    "vehicle": "scooter",
+    "rating": 4.6,
+    "status": "available",
+    "location": {
+      "lat": 12.885225,
+      "lng": 77.620163
+    },
+    "completed_deliveries": 482
+  },
+  {
+    "id": "drv_0050",
+    "name": "Driver 50",
+    "phone": "+91-90000-00050",
+    "vehicle": "ev-bike",
+    "rating": 4.6,
+    "status": "available",
+    "location": {
+      "lat": 12.883035,
+      "lng": 77.645595
+    },
+    "completed_deliveries": 2243
+  }
+]

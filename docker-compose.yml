@@ -1,0 +1,57 @@
+services:
+  restaurant-service:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: uvicorn services.restaurant_service.main:app --host 0.0.0.0 --port 8001
+    environment:
+      DATA_DIR: /app/backend/data
+      DELIVERY_SERVICE_URL: http://delivery-service:8002
+      PAYMENT_SERVICE_URL: http://payment-service:8003
+      HTTP_TIMEOUT_SECONDS: ${HTTP_TIMEOUT_SECONDS:-6.0}
+      SLOW_RECOMMENDATION_SERVICE: ${SLOW_RECOMMENDATION_SERVICE:-false}
+      RANDOM_API_FAILURES: ${RANDOM_API_FAILURES:-false}
+      DATABASE_QUERY_DELAY: ${DATABASE_QUERY_DELAY:-false}
+    ports:
+      - "8001:8001"
+    depends_on:
+      - delivery-service
+      - payment-service
+
+  delivery-service:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: uvicorn services.delivery_service.main:app --host 0.0.0.0 --port 8002
+    environment:
+      DATA_DIR: /app/backend/data
+      DRIVER_ALLOCATION_FAILURE: ${DRIVER_ALLOCATION_FAILURE:-false}
+      RANDOM_API_FAILURES: ${RANDOM_API_FAILURES:-false}
+      DATABASE_QUERY_DELAY: ${DATABASE_QUERY_DELAY:-false}
+    ports:
+      - "8002:8002"
+
+  payment-service:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    command: uvicorn services.payment_service.main:app --host 0.0.0.0 --port 8003
+    environment:
+      PAYMENT_TIMEOUT: ${PAYMENT_TIMEOUT:-false}
+      PAYMENT_TIMEOUT_SECONDS: ${PAYMENT_TIMEOUT_SECONDS:-8.0}
+      RANDOM_API_FAILURES: ${RANDOM_API_FAILURES:-false}
+      DATABASE_QUERY_DELAY: ${DATABASE_QUERY_DELAY:-false}
+    ports:
+      - "8003:8003"
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    environment:
+      VITE_RESTAURANT_API_URL: http://localhost:8001
+    ports:
+      - "5173:5173"
+    depends_on:
+      - restaurant-service
+
