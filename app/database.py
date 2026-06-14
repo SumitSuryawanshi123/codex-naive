@@ -1,10 +1,50 @@
-"""Backward-compatible imports for older local scripts.
+from __future__ import annotations
 
-New code should import from app.db and app.utils directly.
-"""
+from collections.abc import Iterator
 
-from .db.connection import create_connection as get_connection
-from .db.initialization import initialize_database
-from .utils.datetime import utc_now
+from sqlalchemy import create_engine
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
-__all__ = ["get_connection", "initialize_database", "utc_now"]
+from app.config import get_settings
+from app.db.connection import create_connection as get_connection
+from app.db.initialization import initialize_database
+from app.utils.datetime import utc_now
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+engine = create_engine(
+    get_settings().database_url,
+    connect_args={"check_same_thread": False}
+    if get_settings().database_url.startswith("sqlite")
+    else {},
+)
+SessionLocal = sessionmaker(bind=engine, autocommit=False, autoflush=False, expire_on_commit=False)
+
+
+def init_db() -> None:
+    from app import models  # noqa: F401
+
+    Base.metadata.create_all(bind=engine)
+
+
+def get_db() -> Iterator[Session]:
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+__all__ = [
+    "Base",
+    "SessionLocal",
+    "engine",
+    "get_connection",
+    "get_db",
+    "init_db",
+    "initialize_database",
+    "utc_now",
+]

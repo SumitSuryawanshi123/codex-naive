@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Investigation Report</title>
+  <style>
+    :root { font-family: Inter, ui-sans-serif, system-ui, sans-serif; color: #17202a; background: #f6f7f9; }
+    body { margin: 0; }
+    main { max-width: 1180px; margin: 0 auto; padding: 28px 18px; display: grid; gap: 16px; }
+    h1, h2, h3 { margin: 0; }
+    p { margin: 0; color: #54616f; line-height: 1.5; }
+    .panel, .cause { background: white; border: 1px solid #dfe5ea; border-radius: 8px; padding: 16px; }
+    .cause { display: grid; gap: 12px; }
+    .meta { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill { border: 1px solid #bfd6d2; background: #eef8f6; color: #155c51; border-radius: 999px; padding: 4px 9px; font-size: 12px; font-weight: 750; }
+    pre { white-space: pre-wrap; overflow-wrap: anywhere; background: #101820; color: #f3f7f7; padding: 12px; border-radius: 6px; font-size: 13px; }
+    form { display: grid; gap: 10px; }
+    input, textarea { width: 100%; box-sizing: border-box; border: 1px solid #cfd6dd; border-radius: 6px; padding: 10px; font: inherit; }
+    button, a.button { width: fit-content; border: 0; border-radius: 6px; padding: 10px 14px; background: #16695c; color: white; font-weight: 750; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <main>
+    <header class="panel">
+      <h1>Investigation #{{ report.investigation.id }}</h1>
+      <div class="meta">
+        <span class="pill">{{ report.investigation.status }}</span>
+        <span class="pill">step {{ report.investigation.step_count }} / {{ report.investigation.budget }}</span>
+      </div>
+      {% if report.investigation.summary %}<p>{{ report.investigation.summary }}</p>{% endif %}
+    </header>
+
+    <section class="panel">
+      <h2>Ranked Causes</h2>
+    </section>
+    {% for cause in report.ranked_causes %}
+      <article class="cause">
+        <div class="meta">
+          <span class="pill">{{ cause.category }}</span>
+          <span class="pill">evidence score {{ cause.evidence_score }}/10</span>
+          <span class="pill">novelty {{ "%.2f"|format(cause.novelty_score) }}</span>
+          <span class="pill">support {{ cause.breakdown.supporting }}</span>
+          <span class="pill">contradict {{ cause.breakdown.contradicting }}</span>
+        </div>
+        <h3>{{ cause.statement }}</h3>
+        {% for signal in cause.signals %}
+          <div>
+            <p>{{ signal.relation }} / {{ signal.strength }} / evidence #{{ signal.evidence_id }} / span {{ signal.span[0] }}-{{ signal.span[1] }}</p>
+            <pre>{{ signal.text }}</pre>
+          </div>
+        {% endfor %}
+      </article>
+    {% endfor %}
+
+    {% if report.evidence_requests %}
+      <section class="panel">
+        <h2>Evidence Requests</h2>
+        {% for request in report.evidence_requests %}
+          <p><strong>{{ request.what }}</strong> - {{ request.why }} Expected signal: {{ request.expected_signal }}.</p>
+        {% endfor %}
+      </section>
+    {% endif %}
+
+    {% if report.timeline %}
+      <section class="panel">
+        <h2>Timeline</h2>
+        {% for event in report.timeline %}
+          <p><strong>{{ event.timestamp }}</strong> evidence #{{ event.evidence_id }} {{ event.type }} - {{ event.text }}</p>
+        {% endfor %}
+      </section>
+    {% endif %}
+
+    {% if report.similar_resolutions %}
+      <section class="panel">
+        <h2>Similar Resolutions</h2>
+        {% for item in report.similar_resolutions %}
+          <p><strong>{{ item.category }}</strong> {{ item.summary }} - {{ item.resolution_note }} Seen {{ item.weight }} time(s).</p>
+        {% endfor %}
+      </section>
+    {% endif %}
+
+    {% if report.remediation_suggestions %}
+      <section class="panel">
+        <h2>Suggested Remediation</h2>
+        {% for item in report.remediation_suggestions %}
+          <p><strong>{{ item.category }}</strong> {{ item.action }} Validation: {{ item.validation }}</p>
+        {% endfor %}
+      </section>
+    {% endif %}
+
+    <section class="panel">
+      <h2>Feedback</h2>
+      <form method="post" action="/demo/{{ report.investigation.id }}/feedback">
+        <input name="chosen_root_cause" placeholder="Chosen root cause" required>
+        <label><input type="checkbox" name="was_correct" value="true"> Correct</label>
+        <textarea name="resolution_note" placeholder="Resolution note"></textarea>
+        <button type="submit">Save feedback</button>
+      </form>
+    </section>
+    <a class="button" href="/">New investigation</a>
+  </main>
+</body>
+</html>

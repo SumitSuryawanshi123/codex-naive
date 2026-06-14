@@ -1,0 +1,6 @@
+{
+  "summary": "Refund request is rejected",
+  "expected_category": "BUSINESS_LOGIC",
+  "expected_root_cause": "Refund violates the configured business invariant",
+  "input": "2026-06-14T15:45:00Z ERROR validation failed business rule invariant refund_amount must be <= captured_amount\n2026-06-14T15:45:01Z INFO payment record loaded"
+}

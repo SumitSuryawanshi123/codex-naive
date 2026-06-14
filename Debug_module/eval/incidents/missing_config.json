@@ -1,0 +1,6 @@
+{
+  "summary": "Worker crashes on startup",
+  "expected_category": "CONFIGURATION",
+  "expected_root_cause": "DATABASE_URL is missing from the runtime environment",
+  "input": "2026-06-14T09:01:00Z FATAL missing env DATABASE_URL config invalid\nTraceback (most recent call last):\n  File \"app/config.py\", line 42, in load\nKeyError: DATABASE_URL"
+}

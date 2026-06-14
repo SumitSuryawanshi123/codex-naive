@@ -1,0 +1,6 @@
+{
+  "summary": "Checkout fails while charging cards",
+  "expected_category": "EXTERNAL_SERVICE",
+  "expected_root_cause": "Stripe calls are timing out",
+  "input": "2026-06-14T08:15:01Z ERROR checkout charge failed: timeout calling Stripe after 30000ms request_id=ch_123 token=sk_test_supersecret\n2026-06-14T08:15:02Z WARN retry exhausted for external payment provider"
+}
