@@ -46,6 +46,10 @@ button:disabled {
   opacity: 0.62;
 }
 
+body.graph-modal-open {
+  overflow: hidden;
+}
+
 .topbar {
   display: flex;
   align-items: center;
@@ -457,20 +461,95 @@ button:disabled {
   gap: 10px;
 }
 
-.graph-panel {
-  position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1.6fr) minmax(280px, 0.8fr);
-  min-height: 520px;
+.graph-preview {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
   border-bottom: 1px solid var(--line);
+  background: #ffffff;
+}
+
+.graph-preview div {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.graph-preview strong {
+  font-size: 13px;
+}
+
+.graph-preview span {
+  color: var(--muted);
+  font-size: 12px;
+  overflow-wrap: anywhere;
+}
+
+.graph-preview button {
+  width: min(140px, 42%);
+  flex: 0 0 auto;
+}
+
+.graph-modal {
+  position: fixed;
+  inset: 18px;
+  z-index: 50;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #ffffff;
+  box-shadow: 0 24px 90px rgba(15, 23, 42, 0.32);
+}
+
+.graph-modal[hidden] {
+  display: none;
+}
+
+.graph-modal::before {
+  content: "";
+  position: fixed;
+  inset: -18px;
+  z-index: -1;
+  background: rgba(15, 23, 42, 0.46);
+}
+
+.graph-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  min-height: 68px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
+  background: #fbfcfd;
+}
+
+.graph-modal-header h2 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.graph-modal-header span {
+  display: block;
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.graph-modal-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px);
+  min-height: 0;
 }
 
 .graph-exit-button {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-  z-index: 8;
-  display: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   min-height: 36px;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -481,40 +560,16 @@ button:disabled {
   padding: 0 12px;
 }
 
-.graph-panel.is-fullscreen .graph-exit-button {
-  display: inline-flex;
-  align-items: center;
-}
-
-.graph-panel.is-fullscreen {
-  position: fixed;
-  inset: 18px;
-  z-index: 40;
-  min-height: auto;
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #ffffff;
-  box-shadow: 0 24px 80px rgba(15, 23, 42, 0.28);
-}
-
-.graph-panel.is-fullscreen .graph-canvas,
-.graph-panel.is-fullscreen .react-flow {
-  min-height: calc(100vh - 36px);
-}
-
-.graph-panel.is-fullscreen .analysis-output {
-  max-height: calc(100vh - 36px);
-  overflow: auto;
-}
-
 .graph-canvas {
   position: relative;
-  min-height: 520px;
+  height: 100%;
+  min-height: 0;
   overflow: auto;
   background:
-    linear-gradient(#edf2f7 1px, transparent 1px),
-    linear-gradient(90deg, #edf2f7 1px, transparent 1px);
-  background-size: 28px 28px;
+    linear-gradient(#f1f5f9 1px, transparent 1px),
+    linear-gradient(90deg, #f1f5f9 1px, transparent 1px);
+  background-color: #fbfdff;
+  background-size: 32px 32px;
 }
 
 .graph-svg {
@@ -523,7 +578,7 @@ button:disabled {
   width: 100%;
   height: 100%;
   min-width: 760px;
-  min-height: 520px;
+  min-height: 100%;
   pointer-events: none;
 }
 
@@ -567,17 +622,14 @@ button:disabled {
 
 .graph-node.is-selected,
 .react-flow__node.react-flow-node.is-selected {
-  border-color: var(--blue);
+  border-color: var(--blue) !important;
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14), 0 14px 28px rgba(20, 35, 48, 0.14);
-}
-
-.graph-node.kind-request {
-  border-color: var(--ink);
 }
 
 .react-flow {
   min-width: 100%;
-  min-height: 520px;
+  height: 100%;
+  min-height: 100%;
 }
 
 .react-flow__node.react-flow-node {
@@ -592,6 +644,80 @@ button:disabled {
   border-color: var(--red);
 }
 
+.react-flow__edges {
+  z-index: 2;
+}
+
+.react-flow__edge-path {
+  stroke: #475569 !important;
+  stroke-width: 3 !important;
+  opacity: 1 !important;
+  filter: drop-shadow(0 1px 0 rgba(255, 255, 255, 0.9));
+}
+
+.react-flow__edge.selected .react-flow__edge-path,
+.react-flow__edge:focus .react-flow__edge-path {
+  stroke: #1d4ed8 !important;
+  stroke-width: 4 !important;
+}
+
+.react-flow__connection-path {
+  stroke: #475569;
+  stroke-width: 3;
+}
+
+.graph-node.kind-request,
+.react-flow__node.react-flow-node.kind-request {
+  border-color: #334155;
+  background: #f8fafc;
+}
+
+.graph-node.kind-http,
+.react-flow__node.react-flow-node.kind-http {
+  border-color: #3b82f6;
+  background: #eff6ff;
+}
+
+.graph-node.kind-route,
+.react-flow__node.react-flow-node.kind-route {
+  border-color: #2563eb;
+  background: #eef5ff;
+}
+
+.graph-node.kind-service,
+.react-flow__node.react-flow-node.kind-service {
+  border-color: #0f766e;
+  background: #ecfdf5;
+}
+
+.graph-node.kind-repository,
+.react-flow__node.react-flow-node.kind-repository {
+  border-color: #b45309;
+  background: #fffbeb;
+}
+
+.graph-node.kind-database,
+.react-flow__node.react-flow-node.kind-database {
+  border-color: #be123c;
+  background: #fff1f2;
+}
+
+.graph-node.kind-validation,
+.react-flow__node.react-flow-node.kind-validation {
+  border-color: #15803d;
+  background: #f0fdf4;
+}
+
+.graph-node.kind-model,
+.graph-node.kind-function,
+.graph-node.kind-profiler,
+.react-flow__node.react-flow-node.kind-model,
+.react-flow__node.react-flow-node.kind-function,
+.react-flow__node.react-flow-node.kind-profiler {
+  border-color: #7c3aed;
+  background: #f5f3ff;
+}
+
 .rf-node-label {
   display: grid;
   gap: 10px;
@@ -599,7 +725,11 @@ button:disabled {
 }
 
 .rf-node-label span {
-  color: var(--muted);
+  width: fit-content;
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  color: var(--ink);
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
@@ -660,6 +790,7 @@ button:disabled {
   padding: 16px;
   border-left: 1px solid var(--line);
   background: #ffffff;
+  overflow: auto;
 }
 
 .analysis-output div {
@@ -916,9 +1047,17 @@ button:disabled {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .graph-panel,
   .graph-actions {
     grid-template-columns: 1fr;
+  }
+
+  .graph-modal {
+    inset: 10px;
+  }
+
+  .graph-modal-body {
+    grid-template-columns: 1fr;
+    grid-template-rows: minmax(420px, 1fr) minmax(220px, auto);
   }
 
   .analysis-output {

@@ -55,9 +55,11 @@ const els = {
   fixTraceButton: document.querySelector("#fixTraceButton"),
   fullscreenGraphButton: document.querySelector("#fullscreenGraphButton"),
   graphExitButton: document.querySelector("#graphExitButton"),
+  graphModalSubtitle: document.querySelector("#graphModalSubtitle"),
   functionList: document.querySelector("#functionList"),
   graphCanvas: document.querySelector("#graphCanvas"),
   graphPanel: document.querySelector("#graphPanel"),
+  graphPreviewText: document.querySelector("#graphPreviewText"),
   latestTicketBadge: document.querySelector("#latestTicketBadge"),
   metricDuration: document.querySelector("#metricDuration"),
   metricMethod: document.querySelector("#metricMethod"),
@@ -87,6 +89,7 @@ const els = {
   zipInput: document.querySelector("#zipInput"),
   zipName: document.querySelector("#zipName"),
   elaborateNodeButton: document.querySelector("#elaborateNodeButton"),
+  openGraphPreviewButton: document.querySelector("#openGraphPreviewButton"),
 };
 
 els.demoButtons.forEach((button) => {
@@ -97,12 +100,13 @@ els.stopProjectButton.addEventListener("click", stopProject);
 els.sendRequestButton.addEventListener("click", sendProjectRequest);
 els.analyzeTraceButton.addEventListener("click", analyzeCurrentTrace);
 els.fixTraceButton.addEventListener("click", fixCurrentTrace);
-els.fullscreenGraphButton.addEventListener("click", toggleGraphFullscreen);
-els.graphExitButton.addEventListener("click", () => toggleGraphFullscreen(false));
+els.fullscreenGraphButton.addEventListener("click", () => toggleGraphModal(true));
+els.openGraphPreviewButton.addEventListener("click", () => toggleGraphModal(true));
+els.graphExitButton.addEventListener("click", () => toggleGraphModal(false));
 els.elaborateNodeButton.addEventListener("click", elaborateSelectedNode);
 document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && els.graphPanel.classList.contains("is-fullscreen")) {
-    toggleGraphFullscreen(false);
+  if (event.key === "Escape" && !els.graphPanel.hidden) {
+    toggleGraphModal(false);
   }
 });
 els.zipInput.addEventListener("change", () => {
@@ -364,6 +368,7 @@ function renderTrace({ trace, payload, request, response, statusCode, statusText
   renderFunctions(trace.events);
   renderGraphPlaceholder("Generate a graph for this trace");
   renderFixTraceButtonState();
+  els.graphPreviewText.textContent = "Generate a graph for this trace.";
 }
 
 function renderFailure(method, path, clientEvent, error) {
@@ -586,8 +591,11 @@ async function analyzeCurrentTrace() {
     });
     const analysis = await parseApiResponse(response);
     state.latestAnalysis = analysis;
+    toggleGraphModal(true);
     renderGraphAnalysis(analysis);
     renderFixTraceButtonState();
+    els.fixTraceButton.disabled = false;
+    els.graphPreviewText.textContent = `${analysis.nodes?.length || 0} nodes ready. Open graph to zoom and inspect.`;
   } catch (error) {
     renderGraphPlaceholder(errorMessage(error));
   } finally {
@@ -602,6 +610,7 @@ function renderGraphPlaceholder(message) {
   els.analysisSummary.textContent = "No graph generated yet.";
   renderSelectedNode(null);
   els.failureList.innerHTML = "";
+  els.graphModalSubtitle.textContent = message;
 }
 
 function renderGraphAnalysis(analysis) {
@@ -688,10 +697,18 @@ function renderSelectedNode(node) {
 }
 
 function toggleGraphFullscreen(force) {
+  toggleGraphModal(force);
+}
+
+function toggleGraphModal(force) {
   const shouldOpen =
-    typeof force === "boolean" ? force : !els.graphPanel.classList.contains("is-fullscreen");
-  els.graphPanel.classList.toggle("is-fullscreen", shouldOpen);
-  els.fullscreenGraphButton.textContent = shouldOpen ? "Exit Full Screen" : "Full Screen";
+    typeof force === "boolean" ? force : els.graphPanel.hidden;
+  els.graphPanel.hidden = !shouldOpen;
+  document.body.classList.toggle("graph-modal-open", shouldOpen);
+  els.fullscreenGraphButton.textContent = shouldOpen ? "Graph Open" : "Open Graph";
+  if (shouldOpen && state.latestAnalysis) {
+    window.setTimeout(() => renderGraph(state.latestAnalysis.nodes || [], state.latestAnalysis.edges || []), 0);
+  }
 }
 
 function renderReactFlowGraph(nodes, edges) {
@@ -720,6 +737,16 @@ function renderReactFlowGraph(nodes, edges) {
     source: edge.from,
     target: edge.to,
     type: "smoothstep",
+    markerEnd: {
+      type: "arrowclosed",
+      color: "#475569",
+      width: 18,
+      height: 18,
+    },
+    style: {
+      stroke: "#475569",
+      strokeWidth: 3,
+    },
   }));
 
   if (!state.reactFlowRoot) {
@@ -740,7 +767,7 @@ function renderReactFlowGraph(nodes, edges) {
         elementsSelectable: true,
         onNodeClick: (_event, node) => selectGraphNode(node.id),
       },
-      reactFlow.Background ? React.createElement(reactFlow.Background, { gap: 24 }) : null,
+      reactFlow.Background ? React.createElement(reactFlow.Background, { gap: 32, color: "#e2e8f0" }) : null,
       reactFlow.Controls ? React.createElement(reactFlow.Controls, null) : null,
       reactFlow.MiniMap ? React.createElement(reactFlow.MiniMap, { pannable: true, zoomable: true }) : null,
     ),
