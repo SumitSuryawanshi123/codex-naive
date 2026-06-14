@@ -41,6 +41,7 @@ const state = {
   project: null,
   reactFlowRoot: null,
   selectedNodeId: null,
+  tutorialIndex: 0,
 };
 
 const els = {
@@ -60,6 +61,7 @@ const els = {
   graphCanvas: document.querySelector("#graphCanvas"),
   graphPanel: document.querySelector("#graphPanel"),
   graphPreviewText: document.querySelector("#graphPreviewText"),
+  helpTutorialButton: document.querySelector("#helpTutorialButton"),
   latestTicketBadge: document.querySelector("#latestTicketBadge"),
   metricDuration: document.querySelector("#metricDuration"),
   metricMethod: document.querySelector("#metricMethod"),
@@ -94,7 +96,59 @@ const els = {
   zipName: document.querySelector("#zipName"),
   elaborateNodeButton: document.querySelector("#elaborateNodeButton"),
   openGraphPreviewButton: document.querySelector("#openGraphPreviewButton"),
+  tutorialBackButton: document.querySelector("#tutorialBackButton"),
+  tutorialBody: document.querySelector("#tutorialBody"),
+  tutorialCard: document.querySelector("#tutorialCard"),
+  tutorialNextButton: document.querySelector("#tutorialNextButton"),
+  tutorialOverlay: document.querySelector("#tutorialOverlay"),
+  tutorialProgress: document.querySelector("#tutorialProgress"),
+  tutorialSkipButton: document.querySelector("#tutorialSkipButton"),
+  tutorialSpotlight: document.querySelector("#tutorialSpotlight"),
+  tutorialTitle: document.querySelector("#tutorialTitle"),
 };
+
+const tutorialSteps = [
+  {
+    selector: ".upload-area",
+    title: "Load a FastAPI project",
+    body: "Choose a zip, enter an ASGI target if needed, then upload and run it under TraceFlow.",
+  },
+  {
+    selector: ".github-connect",
+    title: "Or connect GitHub",
+    body: "Paste a repository URL and optional branch/token to run a project directly from GitHub.",
+  },
+  {
+    selector: ".route-area",
+    title: "Pick a route",
+    body: "TraceFlow detects available routes. Selecting one fills the request builder for you.",
+  },
+  {
+    selector: ".demo-area",
+    title: "Try the demo",
+    body: "The built-in ticket API is a quick way to create traces before uploading your own app.",
+  },
+  {
+    selector: ".request-builder",
+    title: "Send a request",
+    body: "Adjust method, path, and JSON body, then send the request to capture execution details.",
+  },
+  {
+    selector: ".graph-tools",
+    title: "Ask and generate",
+    body: "Type a debugging question and generate a node graph with summaries and failure hints.",
+  },
+  {
+    selector: ".graph-preview",
+    title: "Open the graph",
+    body: "Open the modal to zoom, pan, inspect colored nodes, and elaborate on selected steps.",
+  },
+  {
+    selector: "#debugAnalysisBox",
+    title: "Investigate fixes",
+    body: "For failing traces, Fix This asks DebugOS and can produce a repair package when enough context exists.",
+  },
+];
 
 els.demoButtons.forEach((button) => {
   button.addEventListener("click", () => runDemoAction(button.dataset.demoAction));
@@ -109,9 +163,28 @@ els.fullscreenGraphButton.addEventListener("click", () => toggleGraphModal(true)
 els.openGraphPreviewButton.addEventListener("click", () => toggleGraphModal(true));
 els.graphExitButton.addEventListener("click", () => toggleGraphModal(false));
 els.elaborateNodeButton.addEventListener("click", elaborateSelectedNode);
+els.helpTutorialButton.addEventListener("click", startTutorial);
+els.tutorialBackButton.addEventListener("click", previousTutorialStep);
+els.tutorialNextButton.addEventListener("click", nextTutorialStep);
+els.tutorialSkipButton.addEventListener("click", endTutorial);
 document.addEventListener("keydown", (event) => {
+  if (!els.tutorialOverlay.hidden) {
+    if (event.key === "Escape") {
+      endTutorial();
+    } else if (event.key === "ArrowRight") {
+      nextTutorialStep();
+    } else if (event.key === "ArrowLeft") {
+      previousTutorialStep();
+    }
+    return;
+  }
   if (event.key === "Escape" && !els.graphPanel.hidden) {
     toggleGraphModal(false);
+  }
+});
+window.addEventListener("resize", () => {
+  if (!els.tutorialOverlay.hidden) {
+    renderTutorialStep();
   }
 });
 els.zipInput.addEventListener("change", () => {
@@ -147,6 +220,103 @@ async function uploadProject() {
   } finally {
     setBusy(false);
   }
+}
+
+function startTutorial() {
+  state.tutorialIndex = 0;
+  els.tutorialOverlay.hidden = false;
+  document.body.classList.add("tutorial-open");
+  renderTutorialStep();
+}
+
+function endTutorial() {
+  els.tutorialOverlay.hidden = true;
+  document.body.classList.remove("tutorial-open");
+  document.querySelectorAll(".tutorial-target").forEach((element) => {
+    element.classList.remove("tutorial-target");
+  });
+}
+
+function nextTutorialStep() {
+  if (state.tutorialIndex >= tutorialSteps.length - 1) {
+    endTutorial();
+    return;
+  }
+  state.tutorialIndex += 1;
+  renderTutorialStep();
+}
+
+function previousTutorialStep() {
+  if (state.tutorialIndex <= 0) {
+    return;
+  }
+  state.tutorialIndex -= 1;
+  renderTutorialStep();
+}
+
+function renderTutorialStep() {
+  const step = tutorialSteps[state.tutorialIndex];
+  const target = document.querySelector(step.selector);
+  document.querySelectorAll(".tutorial-target").forEach((element) => {
+    element.classList.remove("tutorial-target");
+  });
+
+  els.tutorialProgress.textContent = `Step ${state.tutorialIndex + 1} of ${tutorialSteps.length}`;
+  els.tutorialTitle.textContent = step.title;
+  els.tutorialBody.textContent = step.body;
+  els.tutorialBackButton.disabled = state.tutorialIndex === 0;
+  els.tutorialNextButton.textContent =
+    state.tutorialIndex === tutorialSteps.length - 1 ? "Done" : "Next";
+
+  if (!target) {
+    positionTutorialCard({
+      top: window.innerHeight / 2 - 80,
+      left: window.innerWidth / 2 - 180,
+      width: 360,
+      height: 160,
+    });
+    return;
+  }
+
+  target.classList.add("tutorial-target");
+  target.scrollIntoView({ behavior: "smooth", block: "center", inline: "center" });
+  window.setTimeout(() => {
+    const rect = target.getBoundingClientRect();
+    const paddedRect = {
+      top: Math.max(12, rect.top - 8),
+      left: Math.max(12, rect.left - 8),
+      width: Math.min(window.innerWidth - 24, rect.width + 16),
+      height: Math.min(window.innerHeight - 24, rect.height + 16),
+    };
+    els.tutorialSpotlight.style.top = `${paddedRect.top}px`;
+    els.tutorialSpotlight.style.left = `${paddedRect.left}px`;
+    els.tutorialSpotlight.style.width = `${paddedRect.width}px`;
+    els.tutorialSpotlight.style.height = `${paddedRect.height}px`;
+    positionTutorialCard(paddedRect);
+  }, 180);
+}
+
+function positionTutorialCard(rect) {
+  const cardWidth = Math.min(380, window.innerWidth - 28);
+  const cardHeight = 230;
+  const gap = 16;
+  let top = rect.top;
+  let left = rect.left + rect.width + gap;
+
+  if (left + cardWidth > window.innerWidth - 14) {
+    left = rect.left - cardWidth - gap;
+  }
+  if (left < 14) {
+    left = Math.min(window.innerWidth - cardWidth - 14, 14);
+    top = rect.top + rect.height + gap;
+  }
+  if (top + cardHeight > window.innerHeight - 14) {
+    top = Math.max(14, window.innerHeight - cardHeight - 14);
+  }
+
+  els.tutorialCard.style.width = `${cardWidth}px`;
+  els.tutorialCard.style.top = `${top}px`;
+  els.tutorialCard.style.left = `${left}px`;
 }
 
 async function connectGithub() {

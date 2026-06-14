@@ -16,7 +16,10 @@
           <p>FastAPI execution studio</p>
         </div>
       </div>
-      <div class="status-pill" id="statusPill">Ready</div>
+      <div class="topbar-actions">
+        <button class="help-button" id="helpTutorialButton" type="button">Help</button>
+        <div class="status-pill" id="statusPill">Ready</div>
+      </div>
     </header>
 
     <main class="workspace">
@@ -217,6 +220,21 @@
           <ul id="failureList"></ul>
         </div>
       </div>
+    </section>
+
+    <section class="tutorial-overlay" id="tutorialOverlay" aria-modal="true" role="dialog" hidden>
+      <div class="tutorial-backdrop" aria-hidden="true"></div>
+      <div class="tutorial-spotlight" id="tutorialSpotlight" aria-hidden="true"></div>
+      <article class="tutorial-card" id="tutorialCard">
+        <div class="tutorial-progress" id="tutorialProgress">Step 1 of 7</div>
+        <h2 id="tutorialTitle">Start</h2>
+        <p id="tutorialBody">Follow the highlighted controls to run a trace.</p>
+        <div class="tutorial-actions">
+          <button class="secondary-button" id="tutorialBackButton" type="button">Back</button>
+          <button class="secondary-button" id="tutorialSkipButton" type="button">Skip</button>
+          <button class="primary-button" id="tutorialNextButton" type="button">Next</button>
+        </div>
+      </article>
     </section>
 
     <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
