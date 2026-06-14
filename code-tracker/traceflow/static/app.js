@@ -35,11 +35,16 @@ const state = {
   busy: false,
   latestTicketId: 1,
   project: null,
+  lastRequest: null,
+  lastResponse: null,
+  lastTrace: null,
 };
 
 const els = {
   appTarget: document.querySelector("#appTarget"),
+  debugAnalysis: document.querySelector("#debugAnalysis"),
   demoButtons: document.querySelectorAll("[data-demo-action]"),
+  fixThisButton: document.querySelector("#fixThisButton"),
   flowRail: document.querySelector("#flowRail"),
   functionList: document.querySelector("#functionList"),
   latestTicketBadge: document.querySelector("#latestTicketBadge"),
@@ -75,6 +80,7 @@ els.demoButtons.forEach((button) => {
 els.uploadButton.addEventListener("click", uploadProject);
 els.stopProjectButton.addEventListener("click", stopProject);
 els.sendRequestButton.addEventListener("click", sendProjectRequest);
+els.fixThisButton.addEventListener("click", fixCurrentTrace);
 els.zipInput.addEventListener("change", () => {
   els.zipName.textContent = els.zipInput.files[0]?.name || "Choose zip";
 });
@@ -167,6 +173,8 @@ async function sendProjectRequest() {
     renderTrace({
       trace: payload.trace,
       payload: responseBody,
+      request: payload.request,
+      response: payload.response,
       statusCode: payload.response.status_code,
       statusText: "",
       clientEvent,
@@ -200,6 +208,8 @@ async function runDemoAction(actionName) {
     renderTrace({
       trace,
       payload: payload ?? { status: "No content" },
+      request: { method: request.method, path: request.url },
+      response: responseEnvelope(response, payload),
       statusCode: response.status,
       statusText: response.statusText,
       clientEvent,
@@ -308,8 +318,11 @@ function renderPending(method, path, clientEvent, traceId = "pending") {
   renderFunctions([]);
 }
 
-function renderTrace({ trace, payload, statusCode, statusText, clientEvent }) {
+function renderTrace({ trace, payload, request, response, statusCode, statusText, clientEvent }) {
   const events = [clientEvent, ...trace.events];
+  state.lastTrace = trace;
+  state.lastRequest = request || { method: trace.method, path: trace.path };
+  state.lastResponse = response || { status_code: statusCode, body: payload };
   els.traceSubtitle.textContent = trace.title;
   els.traceId.textContent = trace.trace_id;
   els.metricMethod.textContent = trace.method;
@@ -322,9 +335,20 @@ function renderTrace({ trace, payload, statusCode, statusText, clientEvent }) {
   renderFlow(events);
   renderTimeline(events);
   renderFunctions(trace.events);
+  renderFixButtonState();
 }
 
 function renderFailure(method, path, clientEvent, error) {
+  const trace = {
+    trace_id: "failed",
+    method,
+    path,
+    title: `${method} ${path}`,
+    status_code: 0,
+    outcome: "error",
+    error: errorMessage(error),
+    events: [{ ...clientEvent, status: "error", error: errorMessage(error) }],
+  };
   const failed = {
     ...clientEvent,
     status: "error",
@@ -338,9 +362,77 @@ function renderFailure(method, path, clientEvent, error) {
   els.metricSpans.textContent = "1";
   els.responseStatus.textContent = "failed";
   els.responseBody.textContent = JSON.stringify({ error: failed.detail }, null, 2);
+  state.lastTrace = trace;
+  state.lastRequest = { method, path };
+  state.lastResponse = { status_code: 0, body: failed.detail };
   renderFlow([failed]);
   renderTimeline([failed]);
   renderFunctions([]);
+  renderFixButtonState();
+}
+
+async function fixCurrentTrace() {
+  if (!canFixCurrentTrace()) {
+    renderDebugAnalysisError("No failed trace to analyze");
+    return;
+  }
+
+  setBusy(true, "Analyzing failure");
+  renderDebugAnalysisMessage("Analyzing trace with DebugOS...");
+  try {
+    const response = await fetch("/api/debug/fix", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        project_id: state.project?.project_id || null,
+        request: state.lastRequest,
+        response: state.lastResponse,
+        trace: state.lastTrace,
+      }),
+    });
+    const report = await parseApiResponse(response);
+    renderDebugAnalysis(report);
+  } catch (error) {
+    renderDebugAnalysisError(errorMessage(error));
+  } finally {
+    setBusy(false);
+    renderFixButtonState();
+  }
+}
+
+function renderDebugAnalysis(report) {
+  const cause = report.ranked_causes?.[0];
+  const remediation = report.remediation_suggestions?.[0];
+  if (!cause) {
+    renderDebugAnalysisMessage("DebugOS could not rank a cause from this trace.");
+    return;
+  }
+  els.debugAnalysis.innerHTML = `
+    <div class="debug-result">
+      <p><strong>${escapeHtml(cause.category)}</strong> evidence score ${escapeHtml(cause.evidence_score)}/10</p>
+      <p>${escapeHtml(cause.statement)}</p>
+      ${
+        remediation
+          ? `<p><strong>Suggested remediation:</strong> ${escapeHtml(remediation.action)}</p>
+             <p><strong>Validation:</strong> ${escapeHtml(remediation.validation)}</p>`
+          : ""
+      }
+      <details>
+        <summary>Verified signals (${cause.signals?.length || 0})</summary>
+        <pre>${escapeHtml(JSON.stringify(cause.signals || [], null, 2))}</pre>
+      </details>
+    </div>
+  `;
+}
+
+function renderDebugAnalysisMessage(message) {
+  els.debugAnalysis.textContent = message;
+}
+
+function renderDebugAnalysisError(message) {
+  els.debugAnalysis.innerHTML = `<p class="error-text">${escapeHtml(message)}</p>`;
 }
 
 function renderFlow(events) {
@@ -459,9 +551,12 @@ function updateLatestTicket(payload, actionName) {
 function setBusy(isBusy, label = "") {
   state.busy = isBusy;
   els.statusPill.textContent = isBusy ? label : "Ready";
-  [...els.demoButtons, els.uploadButton, els.stopProjectButton, els.sendRequestButton].forEach((button) => {
+  [...els.demoButtons, els.uploadButton, els.stopProjectButton, els.sendRequestButton, els.fixThisButton].forEach((button) => {
     button.disabled = isBusy;
   });
+  if (!isBusy) {
+    renderFixButtonState();
+  }
 }
 
 function setPanelMessage(status, detail) {
@@ -487,6 +582,33 @@ function makeClientEvent(name, detail) {
     status: "ok",
     duration_ms: 0,
   };
+}
+
+function responseEnvelope(response, payload) {
+  return {
+    status_code: response.status,
+    body: typeof payload === "string" ? payload : JSON.stringify(payload ?? {}),
+    json: typeof payload === "object" && payload !== null ? payload : null,
+  };
+}
+
+function canFixCurrentTrace() {
+  const trace = state.lastTrace;
+  const response = state.lastResponse || {};
+  if (!trace) {
+    return false;
+  }
+  const statusCode = Number(response.status_code || trace.status_code || 0);
+  return (
+    statusCode >= 400 ||
+    trace.outcome === "error" ||
+    Boolean(trace.error) ||
+    (trace.events || []).some((event) => event.status === "error" || event.error)
+  );
+}
+
+function renderFixButtonState() {
+  els.fixThisButton.disabled = state.busy || !canFixCurrentTrace();
 }
 
 function resolveDemoUrl(action) {

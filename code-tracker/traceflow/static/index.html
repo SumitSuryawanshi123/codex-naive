@@ -135,9 +135,15 @@
             <textarea id="requestBody" rows="7" spellcheck="false"></textarea>
           </label>
           <button class="primary-button" id="sendRequestButton" type="button">Send Request</button>
+          <button class="secondary-button" id="fixThisButton" type="button" disabled>Fix this</button>
         </div>
 
         <pre id="responseBody">{}</pre>
+
+        <div class="function-box" id="debugAnalysisBox">
+          <h3>Debug Analysis</h3>
+          <div id="debugAnalysis">Run a failed request, then click Fix this.</div>
+        </div>
 
         <div class="function-box">
           <h3>Function Calls</h3>

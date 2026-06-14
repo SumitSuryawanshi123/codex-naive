@@ -7,6 +7,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from .demo.api import tickets, traces
+from .debug.api import router as debug_router
 from .projects.api import router as projects_router
 from .tracing import TraceMiddleware
 
@@ -30,6 +31,7 @@ def create_app() -> FastAPI:
     app.include_router(tickets.router, prefix="/api")
     app.include_router(traces.router, prefix="/api")
     app.include_router(projects_router, prefix="/api")
+    app.include_router(debug_router, prefix="/api")
 
     @app.get("/", include_in_schema=False)
     def index() -> FileResponse:
