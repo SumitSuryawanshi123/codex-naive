@@ -300,6 +300,33 @@ document.querySelector("#deleteTicketButton").addEventListener("click", async ()
   showToast("Ticket deleted");
 });
 
+document.querySelector("#exportInvoiceButton").addEventListener("click", async () => {
+  if (!state.selectedTicketId) {
+    return;
+  }
+
+  const scenario = window.prompt(
+    "Optional demo scenario: missing_config, billing_timeout (leave blank for default auth/data failure)",
+    "",
+  );
+  const query = scenario ? `?scenario=${encodeURIComponent(scenario.trim())}` : "";
+  const authorization = window.prompt(
+    "Authorization header value (leave blank to trigger 403 missing bearer token)",
+    "",
+  );
+
+  try {
+    await api(`/api/tickets/${state.selectedTicketId}/export-invoice${query}`, {
+      method: "POST",
+      body: JSON.stringify({ authorization: authorization || null }),
+    });
+    showToast("Invoice exported");
+  } catch (error) {
+    showToast(`Export failed (expected for demo): ${error.message}`);
+    console.error("Demo export failure:", error);
+  }
+});
+
 async function start() {
   try {
     await loadLookups();

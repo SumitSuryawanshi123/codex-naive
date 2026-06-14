@@ -4,6 +4,7 @@ from app.api.dependencies import get_ticket_service
 from app.models.tickets import (
     Comment,
     CommentCreate,
+    ExportInvoiceRequest,
     TicketCreate,
     TicketDetail,
     TicketFilters,
@@ -62,3 +63,26 @@ def add_comment(
     service: TicketService = Depends(get_ticket_service),
 ) -> dict:
     return service.add_comment(ticket_id, comment)
+
+
+@router.post("/{ticket_id}/export-invoice")
+def export_invoice(
+    ticket_id: int,
+    payload: ExportInvoiceRequest,
+    scenario: str | None = Query(
+        default=None,
+        description="Demo failure mode: missing_config, billing_timeout. Default fails on auth or missing billing profile.",
+    ),
+    service: TicketService = Depends(get_ticket_service),
+) -> dict:
+    """
+    Demo endpoint with intentional bugs for DebugOS / TraceFlow Fix This testing.
+
+    Try ticket #1 (Billing) with:
+    - No body -> 403 missing bearer token (SECURITY)
+    - authorization without export:admin scope -> 403 missing scope (SECURITY)
+    - authorization bearer export:admin token -> KeyError billing_profile (DATA)
+    - ?scenario=missing_config + valid auth -> missing BILLING_EXPORT_SECRET (CONFIGURATION)
+    - ?scenario=billing_timeout + valid auth -> Stripe timeout (EXTERNAL_SERVICE)
+    """
+    return service.export_invoice(ticket_id, payload.authorization, scenario)

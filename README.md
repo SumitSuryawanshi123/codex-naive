@@ -73,3 +73,33 @@ CRM API:
 - `PATCH /api/tickets/{ticket_id}`
 - `DELETE /api/tickets/{ticket_id}`
 - `POST /api/tickets/{ticket_id}/comments`
+- `POST /api/tickets/{ticket_id}/export-invoice` — **demo buggy endpoint** for Fix This / DebugOS testing
+
+### Testing the buggy export endpoint
+
+Use ticket `#1` (Billing category) at http://127.0.0.1:8000/crm or via API:
+
+```powershell
+# SECURITY: missing bearer token
+curl -X POST http://127.0.0.1:8000/api/tickets/1/export-invoice -H "Content-Type: application/json" -d "{}"
+
+# SECURITY: missing export:admin scope
+curl -X POST http://127.0.0.1:8000/api/tickets/1/export-invoice -H "Content-Type: application/json" -d "{\"authorization\":\"bearer demo-token\"}"
+
+# DATA: missing billing_profile on customer
+curl -X POST http://127.0.0.1:8000/api/tickets/1/export-invoice -H "Content-Type: application/json" -d "{\"authorization\":\"bearer export:admin demo-token\"}"
+
+# CONFIGURATION: missing BILLING_EXPORT_SECRET env
+curl -X POST "http://127.0.0.1:8000/api/tickets/1/export-invoice?scenario=missing_config" -H "Content-Type: application/json" -d "{\"authorization\":\"bearer export:admin demo-token\"}"
+
+# EXTERNAL_SERVICE: Stripe timeout
+curl -X POST "http://127.0.0.1:8000/api/tickets/1/export-invoice?scenario=billing_timeout" -H "Content-Type: application/json" -d "{\"authorization\":\"bearer export:admin demo-token\"}"
+```
+
+Upload the CRM app zip into TraceFlow and call this endpoint to exercise **Fix This**.
+
+Rebuild `app.zip` after CRM API changes:
+
+```powershell
+python scripts/build_app_zip.py
+```

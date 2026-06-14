@@ -89,7 +89,8 @@ button {
 .icon-button,
 .api-link,
 form button,
-.danger-button {
+.danger-button,
+.secondary-button {
   min-height: 40px;
   border-radius: 8px;
   text-decoration: none;
@@ -119,6 +120,13 @@ form button {
   background: #fff1f2;
   color: var(--rose);
   border: 1px solid #fecdd3;
+}
+
+.secondary-button {
+  padding: 0 12px;
+  background: #f8fafc;
+  color: var(--ink);
+  border: 1px solid var(--line);
 }
 
 .stats-grid {

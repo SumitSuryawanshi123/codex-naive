@@ -413,7 +413,7 @@ async function fixCurrentTrace() {
   setBusy(true, "Generating fix");
   renderDebugAnalysisMessage("Analyzing trace with DebugOS...");
   try {
-    const debugPromise = fetch("/api/debug/fix", {
+    const debugPromise = fetch("/api/debug/fix/detail", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -423,6 +423,8 @@ async function fixCurrentTrace() {
         request: state.lastRequest,
         response: state.lastResponse,
         trace: state.latestTrace,
+        query: els.analysisQuery.value.trim(),
+        analysis: state.latestAnalysis,
       }),
     }).then(parseApiResponse);
 
@@ -468,20 +470,108 @@ async function fixCurrentTrace() {
 }
 
 function renderDebugAnalysis(report) {
-  const cause = report.ranked_causes?.[0];
-  const remediation = report.remediation_suggestions?.[0];
+  const cause = report.top_cause || report.ranked_causes?.[0];
+  const remediation = report.remediation?.[0] || report.remediation_suggestions?.[0];
   if (!cause) {
     renderDebugAnalysisMessage("DebugOS could not rank a cause from this trace.");
     return;
   }
+
+  const failure = report.failure || {};
+  const alternatives = report.alternatives || [];
+  const evidenceRequests = report.evidence_requests || [];
+  const nextSteps = report.recommended_next_steps || [];
+  const graphContext = report.graph_context;
+  const timeline = report.timeline || [];
+
   els.debugAnalysis.innerHTML = `
     <div class="debug-result">
+      <p class="debug-status">Investigation status: <strong>${escapeHtml(report.status || "unknown")}</strong></p>
+      <p class="debug-failure">${escapeHtml(failure.summary || "")}</p>
       <p><strong>${escapeHtml(cause.category)}</strong> evidence score ${escapeHtml(cause.evidence_score)}/10</p>
       <p>${escapeHtml(cause.statement)}</p>
       ${
         remediation
           ? `<p><strong>Suggested remediation:</strong> ${escapeHtml(remediation.action)}</p>
              <p><strong>Validation:</strong> ${escapeHtml(remediation.validation)}</p>`
+          : ""
+      }
+      ${
+        alternatives.length
+          ? `<details>
+              <summary>Alternative causes (${alternatives.length})</summary>
+              <ul class="debug-alt-list">
+                ${alternatives
+                  .map(
+                    (item) =>
+                      `<li><strong>${escapeHtml(item.category)}</strong> (${escapeHtml(item.evidence_score)}/10) - ${escapeHtml(item.statement)}</li>`,
+                  )
+                  .join("")}
+              </ul>
+            </details>`
+          : ""
+      }
+      ${
+        evidenceRequests.length
+          ? `<details>
+              <summary>Evidence requests (${evidenceRequests.length})</summary>
+              <ul class="debug-alt-list">
+                ${evidenceRequests
+                  .map(
+                    (item) =>
+                      `<li><strong>${escapeHtml(item.what)}</strong><br>${escapeHtml(item.why)}<br><em>Expected:</em> ${escapeHtml(item.expected_signal)}</li>`,
+                  )
+                  .join("")}
+              </ul>
+            </details>`
+          : ""
+      }
+      ${
+        nextSteps.length
+          ? `<details open>
+              <summary>Recommended next steps (${nextSteps.length})</summary>
+              <ul class="debug-alt-list">
+                ${nextSteps
+                  .map(
+                    (item) =>
+                      `<li><strong>${escapeHtml(item.title)}</strong> [${escapeHtml(item.type)}]<br>${escapeHtml(item.detail)}${
+                        item.validation ? `<br><em>Validation:</em> ${escapeHtml(item.validation)}` : ""
+                      }</li>`,
+                  )
+                  .join("")}
+              </ul>
+            </details>`
+          : ""
+      }
+      ${
+        graphContext?.failure_points?.length
+          ? `<details>
+              <summary>Graph failure points (${graphContext.failure_points.length})</summary>
+              <ul class="debug-alt-list">
+                ${graphContext.failure_points
+                  .map(
+                    (item) =>
+                      `<li><strong>${escapeHtml(item.node_id || "node")}</strong> (${escapeHtml(item.confidence || "unknown")})<br>${escapeHtml(item.reason || "")}</li>`,
+                  )
+                  .join("")}
+              </ul>
+            </details>`
+          : ""
+      }
+      ${
+        timeline.length
+          ? `<details>
+              <summary>Timeline (${timeline.length})</summary>
+              <ul class="debug-alt-list">
+                ${timeline
+                  .slice(0, 8)
+                  .map(
+                    (item) =>
+                      `<li><strong>${escapeHtml(item.timestamp)}</strong> [${escapeHtml(item.type)}] ${escapeHtml(item.text)}</li>`,
+                  )
+                  .join("")}
+              </ul>
+            </details>`
           : ""
       }
       <details>

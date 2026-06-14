@@ -45,6 +45,13 @@ class CommentCreate(BaseModel):
     body: str = Field(min_length=3, max_length=1000)
 
 
+class ExportInvoiceRequest(BaseModel):
+    authorization: str | None = Field(
+        default=None,
+        description="Bearer token used for invoice export authorization checks.",
+    )
+
+
 class Comment(BaseModel):
     id: int
     ticket_id: int

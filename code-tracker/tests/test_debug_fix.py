@@ -68,3 +68,60 @@ def test_debug_fix_endpoint_rejects_successful_trace() -> None:
 
     assert response.status_code == 400
     assert response.json()["detail"] == "No failed trace to analyze"
+
+
+def test_debug_fix_detail_endpoint_returns_rich_payload() -> None:
+    client = TestClient(create_app())
+    trace = {
+        "trace_id": "failed-payment",
+        "method": "POST",
+        "path": "/api/payments",
+        "title": "POST /api/payments",
+        "status_code": 500,
+        "outcome": "error",
+        "error": "TimeoutError: timeout calling Stripe after 30000ms",
+        "events": [
+            {
+                "event_id": "event-1",
+                "name": "PaymentService.charge",
+                "kind": "service",
+                "status": "error",
+                "error": "TimeoutError: timeout calling Stripe after 30000ms",
+                "duration_ms": 30000,
+            }
+        ],
+    }
+
+    response = client.post(
+        "/api/debug/fix/detail",
+        json={
+            "request": {"method": "POST", "path": "/api/payments"},
+            "response": {"status_code": 500, "body": "timeout calling Stripe after 30000ms"},
+            "trace": trace,
+            "query": "why did payment fail",
+            "analysis": {
+                "summary": "Stripe timeout at payment service",
+                "failure_points": [
+                    {
+                        "node_id": "PaymentService.charge",
+                        "confidence": "high",
+                        "reason": "External provider call exceeded timeout budget",
+                    }
+                ],
+                "llm_used": False,
+                "nodes": [{"id": "PaymentService.charge"}],
+            },
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["failure"]["summary"].startswith("POST /api/payments failed")
+    assert body["failure"]["events"]
+    assert body["top_cause"]["evidence_score"] > 0
+    assert body["ranked_causes"]
+    assert body["remediation"]
+    assert body["recommended_next_steps"]
+    assert body["graph_context"]["failure_points"]
+    assert body["fix_zip_available"] is True
+    assert body["query"] == "why did payment fail"

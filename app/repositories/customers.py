@@ -16,3 +16,10 @@ class CustomerRepository:
     def exists(self, customer_id: int) -> bool:
         row = self.connection.execute("SELECT id FROM customers WHERE id = ?", (customer_id,)).fetchone()
         return row is not None
+
+    def get(self, customer_id: int) -> dict | None:
+        row = self.connection.execute(
+            "SELECT id, name, company, email, phone, tier FROM customers WHERE id = ?",
+            (customer_id,),
+        ).fetchone()
+        return dict(row) if row else None
