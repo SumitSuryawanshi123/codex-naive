@@ -1,0 +1,6 @@
+{
+  "summary": "Signup endpoint returns 500",
+  "expected_category": "DATA",
+  "expected_root_cause": "Database schema is behind the application migration",
+  "input": "2026-06-14T10:22:31Z ERROR postgres duplicate key violates unique constraint users_email_key\n2026-06-14T10:22:32Z ERROR migration version 20260612 not applied schema mismatch"
+}

@@ -1,0 +1,6 @@
+{
+  "summary": "Admin export is denied",
+  "expected_category": "SECURITY",
+  "expected_root_cause": "Token lacks the required export:admin scope",
+  "input": "2026-06-14T11:11:11Z ERROR 403 forbidden permission denied user=ops@example.com bearer abcdefghijklmnopqrstuvwxyz\n2026-06-14T11:11:12Z WARN missing scope export:admin"
+}

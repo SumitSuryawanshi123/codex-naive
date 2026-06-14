@@ -1,9 +1,14 @@
+from __future__ import annotations
+
 from collections.abc import Iterator
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.config import get_settings
+from app.db.connection import create_connection as get_connection
+from app.db.initialization import initialize_database
+from app.utils.datetime import utc_now
 
 
 class Base(DeclarativeBase):
@@ -31,3 +36,15 @@ def get_db() -> Iterator[Session]:
         yield db
     finally:
         db.close()
+
+
+__all__ = [
+    "Base",
+    "SessionLocal",
+    "engine",
+    "get_connection",
+    "get_db",
+    "init_db",
+    "initialize_database",
+    "utc_now",
+]

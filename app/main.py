@@ -1,11 +1,16 @@
 from __future__ import annotations
 
 from fastapi import Depends, FastAPI, Form, HTTPException, Request
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy.orm import Session
 
+from app.api.error_handlers import register_exception_handlers
+from app.api.router import api_router
+from app.core.config import get_settings as get_crm_settings
 from app.database import get_db, init_db
+from app.db.initialization import initialize_database as initialize_crm_database
 from app.evidence.store import append_artifact
 from app.learning import record_resolution
 from app.models import Feedback, Investigation
@@ -13,18 +18,30 @@ from app.orchestrator import create_investigation, step_investigation
 from app.report import investigation_report
 from app.schemas import ArtifactIn, FeedbackIn, InvestigationCreate, InvestigationOut
 
-app = FastAPI(title="DebugOS Investigation Engine")
+app = FastAPI(title="DebugOS Investigation Engine + CRM Tickets Demo")
 templates = Jinja2Templates(directory="app/templates")
+
+register_exception_handlers(app)
+app.include_router(api_router)
+
+crm_settings = get_crm_settings()
+app.mount("/static", StaticFiles(directory=crm_settings.static_dir), name="static")
 
 
 @app.on_event("startup")
 def startup() -> None:
     init_db()
+    initialize_crm_database()
 
 
 @app.get("/", response_class=HTMLResponse)
 def index(request: Request) -> HTMLResponse:
     return templates.TemplateResponse("index.html", {"request": request})
+
+
+@app.get("/crm", include_in_schema=False)
+def crm_index() -> FileResponse:
+    return FileResponse(crm_settings.static_dir / "index.html")
 
 
 @app.post("/demo", response_class=HTMLResponse)

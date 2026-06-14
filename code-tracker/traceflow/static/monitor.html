@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TraceFlow Monitor</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">TF</span>
+        <div>
+          <h1>TraceFlow Monitor</h1>
+          <p>Live request flow from uploaded app</p>
+        </div>
+      </div>
+      <div class="status-pill" id="statusPill">Waiting</div>
+    </header>
+
+    <main class="monitor-workspace">
+      <section class="trace-pane" aria-labelledby="traceTitle">
+        <div class="pane-heading trace-heading">
+          <div>
+            <h2 id="traceTitle">Live Execution Trace</h2>
+            <span id="traceSubtitle">Open the uploaded app tab and click an action</span>
+          </div>
+          <span class="trace-id" id="traceId">no trace</span>
+        </div>
+
+        <div class="metrics" aria-label="Trace metrics">
+          <div>
+            <span>Method</span>
+            <strong id="metricMethod">-</strong>
+          </div>
+          <div>
+            <span>Status</span>
+            <strong id="metricStatus">-</strong>
+          </div>
+          <div>
+            <span>Duration</span>
+            <strong id="metricDuration">-</strong>
+          </div>
+          <div>
+            <span>Spans</span>
+            <strong id="metricSpans">-</strong>
+          </div>
+        </div>
+
+        <div class="flow-rail" id="flowRail" aria-label="Trace stages">
+          <div class="empty-state">No request captured yet</div>
+        </div>
+
+        <ol class="timeline" id="timeline" aria-label="Trace timeline"></ol>
+      </section>
+
+      <aside class="response-pane" aria-labelledby="eventsTitle">
+        <div class="pane-heading">
+          <h2 id="eventsTitle">Recent Requests</h2>
+          <span id="traceCount">0</span>
+        </div>
+        <div class="trace-list" id="traceList">
+          <div class="empty-state">Waiting for app traffic</div>
+        </div>
+
+        <div class="function-box">
+          <h3>Function Calls</h3>
+          <ul id="functionList"></ul>
+        </div>
+      </aside>
+    </main>
+
+    <script src="/static/monitor.js"></script>
+  </body>
+</html>
