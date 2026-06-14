@@ -1,0 +1,189 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TraceFlow</title>
+    <link rel="stylesheet" href="https://unpkg.com/reactflow@11/dist/style.css" />
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark">TF</span>
+        <div>
+          <h1>TraceFlow</h1>
+          <p>FastAPI execution studio</p>
+        </div>
+      </div>
+      <div class="status-pill" id="statusPill">Ready</div>
+    </header>
+
+    <main class="workspace">
+      <section class="control-pane" aria-labelledby="sourceTitle">
+        <div class="pane-heading">
+          <h2 id="sourceTitle">Project Source</h2>
+          <span id="projectStatus">No upload</span>
+        </div>
+
+        <div class="upload-area">
+          <label class="file-picker" for="zipInput">
+            <span id="zipName">Choose zip</span>
+            <input id="zipInput" type="file" accept=".zip,application/zip" />
+          </label>
+          <label class="field">
+            <span>ASGI target</span>
+            <input id="appTarget" type="text" placeholder="app.main:app" />
+          </label>
+          <button class="primary-button" id="uploadButton" type="button">Upload & Run</button>
+          <button class="secondary-button" id="stopProjectButton" type="button">Stop Project</button>
+          <div class="project-links" id="projectLinks" hidden>
+            <a id="openAppLink" target="_blank" rel="noreferrer">Open App</a>
+            <a id="openMonitorLink" target="_blank" rel="noreferrer">Open Monitor</a>
+          </div>
+        </div>
+
+        <div class="route-area">
+          <div class="subheading">
+            <h3>Detected Routes</h3>
+            <span id="routeCount">0</span>
+          </div>
+          <div class="route-list" id="routeList">
+            <div class="empty-state">Upload a FastAPI zip</div>
+          </div>
+        </div>
+
+        <div class="demo-area">
+          <div class="subheading">
+            <h3>Built-In Demo</h3>
+            <span id="latestTicketBadge">Ticket #1</span>
+          </div>
+          <div class="action-stack">
+            <button class="action-button" type="button" data-demo-action="create">
+              <span class="method method-post">POST</span>
+              <span>Create ticket</span>
+            </button>
+            <button class="action-button" type="button" data-demo-action="list">
+              <span class="method method-get">GET</span>
+              <span>List tickets</span>
+            </button>
+            <button class="action-button" type="button" data-demo-action="update">
+              <span class="method method-patch">PATCH</span>
+              <span>Update latest</span>
+            </button>
+            <button class="action-button" type="button" data-demo-action="delete">
+              <span class="method method-delete">DEL</span>
+              <span>Delete latest</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="trace-pane" aria-labelledby="traceTitle">
+        <div class="pane-heading trace-heading">
+          <div>
+            <h2 id="traceTitle">Execution Trace</h2>
+            <span id="traceSubtitle">Idle</span>
+          </div>
+          <span class="trace-id" id="traceId">no trace</span>
+        </div>
+
+        <div class="metrics" aria-label="Trace metrics">
+          <div>
+            <span>Method</span>
+            <strong id="metricMethod">-</strong>
+          </div>
+          <div>
+            <span>Status</span>
+            <strong id="metricStatus">-</strong>
+          </div>
+          <div>
+            <span>Duration</span>
+            <strong id="metricDuration">-</strong>
+          </div>
+          <div>
+            <span>Spans</span>
+            <strong id="metricSpans">-</strong>
+          </div>
+        </div>
+
+        <div class="flow-rail" id="flowRail" aria-label="Trace stages">
+          <div class="empty-state">No request selected</div>
+        </div>
+
+        <div class="graph-tools">
+          <label class="field">
+            <span>Ask about this trace</span>
+            <textarea
+              id="analysisQuery"
+              rows="3"
+              spellcheck="false"
+              placeholder="why it does not work"
+            ></textarea>
+          </label>
+          <div class="graph-actions">
+            <button class="secondary-button" id="analyzeTraceButton" type="button">Generate Graph</button>
+            <button class="secondary-button" id="fullscreenGraphButton" type="button">Full Screen</button>
+            <button class="primary-button" id="fixTraceButton" type="button" disabled>Fix This</button>
+          </div>
+        </div>
+
+        <section class="graph-panel" id="graphPanel" aria-label="Trace graph analysis">
+          <button class="graph-exit-button" id="graphExitButton" type="button">Exit Full Screen</button>
+          <div class="graph-canvas" id="graphCanvas">
+            <div class="empty-state">Generate a graph after running a request</div>
+          </div>
+          <div class="analysis-output">
+            <h3>AI Analysis</h3>
+            <div id="analysisSummary">No graph generated yet.</div>
+            <div class="selected-node" id="selectedNodePanel" hidden>
+              <strong id="selectedNodeTitle">No node selected</strong>
+              <span id="selectedNodeMeta">Click a graph node to inspect it.</span>
+              <button class="secondary-button" id="elaborateNodeButton" type="button">Elaborate</button>
+            </div>
+            <ul id="failureList"></ul>
+          </div>
+        </section>
+
+        <ol class="timeline" id="timeline" aria-label="Trace timeline"></ol>
+      </section>
+
+      <aside class="response-pane" aria-labelledby="requestTitle">
+        <div class="pane-heading">
+          <h2 id="requestTitle">Request</h2>
+          <span id="responseStatus">empty</span>
+        </div>
+
+        <div class="request-builder">
+          <div class="request-line">
+            <select id="requestMethod" aria-label="HTTP method">
+              <option>GET</option>
+              <option>POST</option>
+              <option>PUT</option>
+              <option>PATCH</option>
+              <option>DELETE</option>
+            </select>
+            <input id="requestPath" type="text" value="/" aria-label="Request path" />
+          </div>
+          <label class="field">
+            <span>JSON body</span>
+            <textarea id="requestBody" rows="7" spellcheck="false"></textarea>
+          </label>
+          <button class="primary-button" id="sendRequestButton" type="button">Send Request</button>
+        </div>
+
+        <pre id="responseBody">{}</pre>
+
+        <div class="function-box">
+          <h3>Function Calls</h3>
+          <ul id="functionList"></ul>
+        </div>
+      </aside>
+    </main>
+
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/reactflow@11/dist/umd/index.js"></script>
+    <script src="/static/app.js"></script>
+  </body>
+</html>

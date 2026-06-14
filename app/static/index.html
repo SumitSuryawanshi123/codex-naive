@@ -1,0 +1,204 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CRM Tickets</title>
+    <link rel="stylesheet" href="/static/styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">CRM Tickets</p>
+          <h1>Support queue</h1>
+        </div>
+        <div class="topbar-actions">
+          <button id="refreshButton" class="icon-button" type="button" title="Refresh">↻</button>
+          <a class="api-link" href="/docs" target="_blank" rel="noreferrer">API Docs</a>
+        </div>
+      </header>
+
+      <section class="stats-grid" aria-label="Ticket summary">
+        <article class="metric metric-total">
+          <span>Total tickets</span>
+          <strong id="totalTickets">0</strong>
+        </article>
+        <article class="metric metric-urgent">
+          <span>Urgent open</span>
+          <strong id="urgentTickets">0</strong>
+        </article>
+        <article class="metric metric-open">
+          <span>Open</span>
+          <strong id="openTickets">0</strong>
+        </article>
+        <article class="metric metric-progress">
+          <span>In progress</span>
+          <strong id="progressTickets">0</strong>
+        </article>
+      </section>
+
+      <section class="workspace">
+        <aside class="queue-panel">
+          <div class="panel-heading">
+            <h2>Queue</h2>
+            <span id="ticketCount" class="count-pill">0</span>
+          </div>
+
+          <form id="filtersForm" class="filters">
+            <label>
+              Search
+              <input id="searchInput" type="search" placeholder="Subject, customer, company" />
+            </label>
+            <div class="filter-row">
+              <label>
+                Status
+                <select id="statusFilter">
+                  <option value="">All</option>
+                  <option>Open</option>
+                  <option>In Progress</option>
+                  <option>Pending Customer</option>
+                  <option>Resolved</option>
+                  <option>Closed</option>
+                </select>
+              </label>
+              <label>
+                Priority
+                <select id="priorityFilter">
+                  <option value="">All</option>
+                  <option>Low</option>
+                  <option>Medium</option>
+                  <option>High</option>
+                  <option>Urgent</option>
+                </select>
+              </label>
+            </div>
+          </form>
+
+          <div id="ticketList" class="ticket-list" aria-live="polite"></div>
+        </aside>
+
+        <section class="detail-panel">
+          <div id="emptyState" class="empty-state">
+            <h2>Select a ticket</h2>
+            <p>Choose a ticket from the queue to view customer details, update status, and add notes.</p>
+          </div>
+
+          <div id="ticketDetail" class="ticket-detail hidden">
+            <div class="detail-heading">
+              <div>
+                <p id="ticketMeta" class="eyebrow"></p>
+                <h2 id="detailSubject"></h2>
+              </div>
+              <button id="deleteTicketButton" class="danger-button" type="button">Delete</button>
+            </div>
+
+            <p id="detailDescription" class="description"></p>
+
+            <div class="detail-grid">
+              <div>
+                <span>Customer</span>
+                <strong id="detailCustomer"></strong>
+              </div>
+              <div>
+                <span>Company</span>
+                <strong id="detailCompany"></strong>
+              </div>
+              <div>
+                <span>Assigned agent</span>
+                <strong id="detailAgent"></strong>
+              </div>
+              <div>
+                <span>Due</span>
+                <strong id="detailDue"></strong>
+              </div>
+            </div>
+
+            <form id="updateForm" class="update-form">
+              <label>
+                Status
+                <select id="detailStatus">
+                  <option>Open</option>
+                  <option>In Progress</option>
+                  <option>Pending Customer</option>
+                  <option>Resolved</option>
+                  <option>Closed</option>
+                </select>
+              </label>
+              <label>
+                Priority
+                <select id="detailPriority">
+                  <option>Low</option>
+                  <option>Medium</option>
+                  <option>High</option>
+                  <option>Urgent</option>
+                </select>
+              </label>
+              <label>
+                Agent
+                <select id="detailAgentSelect"></select>
+              </label>
+              <button type="submit">Save changes</button>
+            </form>
+
+            <section class="comments-section">
+              <div class="panel-heading">
+                <h3>Notes</h3>
+              </div>
+              <form id="commentForm" class="comment-form">
+                <input id="commentAuthor" value="Support Desk" aria-label="Author" />
+                <textarea id="commentBody" placeholder="Add a note" required></textarea>
+                <button type="submit">Add note</button>
+              </form>
+              <div id="commentsList" class="comments-list"></div>
+            </section>
+          </div>
+        </section>
+
+        <aside class="create-panel">
+          <div class="panel-heading">
+            <h2>New ticket</h2>
+          </div>
+
+          <form id="createTicketForm" class="create-form">
+            <label>
+              Subject
+              <input id="newSubject" required minlength="3" placeholder="Short ticket title" />
+            </label>
+            <label>
+              Description
+              <textarea id="newDescription" required minlength="5" placeholder="Customer issue or request"></textarea>
+            </label>
+            <label>
+              Customer
+              <select id="newCustomer" required></select>
+            </label>
+            <div class="filter-row">
+              <label>
+                Priority
+                <select id="newPriority">
+                  <option>Medium</option>
+                  <option>Low</option>
+                  <option>High</option>
+                  <option>Urgent</option>
+                </select>
+              </label>
+              <label>
+                Category
+                <input id="newCategory" value="General" />
+              </label>
+            </div>
+            <label>
+              Agent
+              <select id="newAgent"></select>
+            </label>
+            <button type="submit">Create ticket</button>
+          </form>
+        </aside>
+      </section>
+    </main>
+
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+    <script src="/static/app.js" type="module"></script>
+  </body>
+</html>
