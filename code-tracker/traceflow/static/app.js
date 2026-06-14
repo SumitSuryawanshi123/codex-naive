@@ -85,6 +85,10 @@ const els = {
   timeline: document.querySelector("#timeline"),
   traceId: document.querySelector("#traceId"),
   traceSubtitle: document.querySelector("#traceSubtitle"),
+  connectGithubButton: document.querySelector("#connectGithubButton"),
+  githubBranch: document.querySelector("#githubBranch"),
+  githubRepo: document.querySelector("#githubRepo"),
+  githubToken: document.querySelector("#githubToken"),
   uploadButton: document.querySelector("#uploadButton"),
   zipInput: document.querySelector("#zipInput"),
   zipName: document.querySelector("#zipName"),
@@ -96,6 +100,7 @@ els.demoButtons.forEach((button) => {
   button.addEventListener("click", () => runDemoAction(button.dataset.demoAction));
 });
 els.uploadButton.addEventListener("click", uploadProject);
+els.connectGithubButton.addEventListener("click", connectGithub);
 els.stopProjectButton.addEventListener("click", stopProject);
 els.sendRequestButton.addEventListener("click", sendProjectRequest);
 els.analyzeTraceButton.addEventListener("click", analyzeCurrentTrace);
@@ -136,17 +141,58 @@ async function uploadProject() {
       body: file,
     });
     const project = await parseApiResponse(response);
-    state.project = project;
-    renderProject(project);
-    renderRoutes(project.routes || []);
-    setPanelMessage("Project running", project.app_target);
-    els.responseStatus.textContent = "uploaded";
-    els.responseBody.textContent = JSON.stringify(project, null, 2);
+    applyProject(project, "Project running");
   } catch (error) {
     setPanelMessage("Upload failed", errorMessage(error));
   } finally {
     setBusy(false);
   }
+}
+
+async function connectGithub() {
+  const repo = els.githubRepo.value.trim();
+  if (!repo) {
+    setPanelMessage("GitHub connect failed", "Enter a repository URL or owner/repo");
+    return;
+  }
+
+  setBusy(true, "Connecting GitHub repository");
+  try {
+    const payload = { repo };
+    const branch = els.githubBranch.value.trim();
+    const token = els.githubToken.value.trim();
+    const target = els.appTarget.value.trim();
+    if (branch) {
+      payload.ref = branch;
+    }
+    if (token) {
+      payload.token = token;
+    }
+    if (target) {
+      payload.app_target = target;
+    }
+
+    const response = await fetch("/api/projects/connect-github", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    const project = await parseApiResponse(response);
+    applyProject(project, "GitHub project running");
+  } catch (error) {
+    setPanelMessage("GitHub connect failed", errorMessage(error));
+  } finally {
+    setBusy(false);
+  }
+}
+
+function applyProject(project, successTitle) {
+  state.project = project;
+  renderProject(project);
+  renderRoutes(project.routes || []);
+  setPanelMessage(successTitle, project.app_target);
+  els.responseStatus.textContent = "connected";
+  els.responseBody.textContent = JSON.stringify(project, null, 2);
 }
 
 async function stopProject() {

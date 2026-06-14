@@ -8,6 +8,7 @@ import subprocess
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 import zipfile
 from dataclasses import dataclass
@@ -19,6 +20,7 @@ from uuid import uuid4
 
 TRACEFLOW_ROOT = Path(__file__).resolve().parents[2]
 WORKSPACE_DIR = TRACEFLOW_ROOT / ".traceflow-workspaces"
+GITHUB_API_BASE = "https://api.github.com"
 MAX_ZIP_BYTES = 30 * 1024 * 1024
 MAX_ZIP_FILES = 1500
 SKIPPED_DIRS = {
@@ -37,6 +39,39 @@ SKIPPED_DIRS = {
 
 class ProjectError(RuntimeError):
     pass
+
+
+def parse_github_repo(repo: str) -> tuple[str, str, str | None]:
+    """Return owner, repository name, and optional branch from a GitHub repo string."""
+    text = repo.strip()
+    if not text:
+        raise ProjectError("GitHub repository URL or owner/repo is required")
+
+    ref: str | None = None
+
+    if "://" in text or text.startswith("github.com"):
+        if not text.startswith("http"):
+            text = f"https://{text.lstrip('/')}"
+        parsed = urllib.parse.urlparse(text)
+        if "github.com" not in parsed.netloc:
+            raise ProjectError("Only github.com repositories are supported")
+        parts = [part for part in parsed.path.strip("/").split("/") if part]
+        if len(parts) < 2:
+            raise ProjectError("Invalid GitHub repository URL")
+        owner, repo_name = parts[0], parts[1].removesuffix(".git")
+        if len(parts) >= 4 and parts[2] == "tree":
+            ref = "/".join(parts[3:])
+        return owner, repo_name, ref
+
+    text = text.removesuffix(".git")
+    if "/" not in text:
+        raise ProjectError("Invalid GitHub repository (expected owner/repo or URL)")
+    owner, repo_name = text.split("/", 1)
+    owner = owner.strip()
+    repo_name = repo_name.strip().split("/")[0]
+    if not owner or not repo_name:
+        raise ProjectError("Invalid GitHub repository (expected owner/repo or URL)")
+    return owner, repo_name, ref
 
 
 @dataclass
@@ -112,10 +147,40 @@ class ProjectManager:
         data: bytes,
         app_target: str | None = None,
     ) -> ProjectSession:
-        if len(data) > MAX_ZIP_BYTES:
-            raise ProjectError("Zip file is too large for local tracing")
         if not zipfile.is_zipfile(BytesIO(data)):
             raise ProjectError("Upload must be a valid .zip file")
+
+        name = Path(filename).stem or "project"
+        return self._ingest_and_launch(name=name, data=data, app_target=app_target)
+
+    def connect_github(
+        self,
+        *,
+        repo: str,
+        ref: str | None = None,
+        token: str | None = None,
+        app_target: str | None = None,
+    ) -> ProjectSession:
+        owner, repo_name, url_ref = parse_github_repo(repo)
+        effective_ref = (ref or url_ref or "").strip() or None
+        name = f"{owner}-{repo_name}"
+        data = self._download_github_zipball(
+            owner=owner,
+            repo=repo_name,
+            ref=effective_ref,
+            token=token.strip() if token else None,
+        )
+        return self._ingest_and_launch(name=name, data=data, app_target=app_target)
+
+    def _ingest_and_launch(
+        self,
+        *,
+        name: str,
+        data: bytes,
+        app_target: str | None = None,
+    ) -> ProjectSession:
+        if len(data) > MAX_ZIP_BYTES:
+            raise ProjectError("Archive is too large for local tracing")
 
         try:
             self.workspace_dir.mkdir(parents=True, exist_ok=True)
@@ -137,13 +202,60 @@ class ProjectManager:
         target = self._discover_app_target(source_dir, app_target)
         session = self._launch_project(
             project_id=project_id,
-            name=Path(filename).stem or f"project-{project_id}",
+            name=name or f"project-{project_id}",
             source_dir=source_dir,
             app_target=target,
             project_dir=project_dir,
         )
         self._sessions[project_id] = session
         return session
+
+    def _download_github_zipball(
+        self,
+        *,
+        owner: str,
+        repo: str,
+        ref: str | None,
+        token: str | None,
+    ) -> bytes:
+        if ref:
+            url = f"{GITHUB_API_BASE}/repos/{owner}/{repo}/zipball/{ref}"
+        else:
+            url = f"{GITHUB_API_BASE}/repos/{owner}/{repo}/zipball"
+
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "User-Agent": "traceflow",
+        }
+        if token:
+            headers["Authorization"] = f"Bearer {token}"
+
+        request = urllib.request.Request(url, headers=headers, method="GET")
+        try:
+            with urllib.request.urlopen(request, timeout=120) as response:
+                chunks: list[bytes] = []
+                total = 0
+                while True:
+                    chunk = response.read(65536)
+                    if not chunk:
+                        break
+                    total += len(chunk)
+                    if total > MAX_ZIP_BYTES:
+                        raise ProjectError("Repository archive is too large for local tracing")
+                    chunks.append(chunk)
+                return b"".join(chunks)
+        except urllib.error.HTTPError as exc:
+            if exc.code == 404:
+                raise ProjectError("GitHub repository or branch not found") from exc
+            if exc.code == 401:
+                raise ProjectError(
+                    "GitHub authentication required (provide a Personal Access Token)"
+                ) from exc
+            if exc.code == 403:
+                raise ProjectError("GitHub access denied or rate limited") from exc
+            raise ProjectError(f"GitHub download failed: HTTP {exc.code}") from exc
+        except urllib.error.URLError as exc:
+            raise ProjectError(f"Could not download repository from GitHub: {exc.reason}") from exc
 
     def call_project(
         self,

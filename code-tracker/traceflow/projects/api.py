@@ -19,6 +19,13 @@ class ProjectRequest(BaseModel):
     raw_body: str | None = None
 
 
+class GithubConnectRequest(BaseModel):
+    repo: str
+    ref: str | None = None
+    token: str | None = None
+    app_target: str | None = None
+
+
 @router.get("")
 async def list_projects() -> list[dict[str, Any]]:
     return project_manager.list_projects()
@@ -34,6 +41,20 @@ async def upload_project(request: Request) -> dict[str, Any]:
             filename=filename,
             data=data,
             app_target=app_target,
+        )
+        return session.to_dict()
+    except ProjectError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+
+@router.post("/connect-github")
+async def connect_github_project(payload: GithubConnectRequest) -> dict[str, Any]:
+    try:
+        session = project_manager.connect_github(
+            repo=payload.repo,
+            ref=payload.ref,
+            token=payload.token,
+            app_target=payload.app_target,
         )
         return session.to_dict()
     except ProjectError as exc:

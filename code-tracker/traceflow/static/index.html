@@ -36,6 +36,23 @@
             <input id="appTarget" type="text" placeholder="app.main:app" />
           </label>
           <button class="primary-button" id="uploadButton" type="button">Upload & Run</button>
+          <div class="upload-divider" aria-hidden="true">or</div>
+          <div class="github-connect">
+            <p class="github-connect-title">Connect GitHub</p>
+            <label class="field">
+              <span>Repository URL</span>
+              <input id="githubRepo" type="text" placeholder="https://github.com/owner/repo" />
+            </label>
+            <label class="field">
+              <span>Branch (optional)</span>
+              <input id="githubBranch" type="text" placeholder="main" />
+            </label>
+            <label class="field">
+              <span>Token (optional, for private repos)</span>
+              <input id="githubToken" type="password" placeholder="ghp_..." autocomplete="off" />
+            </label>
+            <button class="secondary-button" id="connectGithubButton" type="button">Connect & Run</button>
+          </div>
           <button class="secondary-button" id="stopProjectButton" type="button">Stop Project</button>
           <div class="project-links" id="projectLinks" hidden>
             <a id="openAppLink" target="_blank" rel="noreferrer">Open App</a>
